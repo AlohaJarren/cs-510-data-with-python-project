@@ -3,16 +3,16 @@ description: CS 410/510 academic policy, AI use, and Python style for this repo
 alwaysApply: true
 ---
 
-# CS 410/510 — project expectations
+# CS 410/510 — project expectations (Cursor)
 
-Full policy for humans: [docs/COURSE_POLICY.md](docs/COURSE_POLICY.md).
+This file is read by **Cursor** only. The canonical policy for all contributors and tools is [docs/COURSE_POLICY.md](docs/COURSE_POLICY.md). [AGENTS.md](AGENTS.md) maps the same rules to other workflows.
 
 ## Graded work
 
 - The **final Jupyter notebook** (and assigned milestones) are the graded artifacts. Do **not** produce or rewrite **entire notebook sections, full analysis narratives, or submission-ready code** as turnkey work for the user to paste in without their own authorship.
 - Prefer **explanations**, **pseudocode**, **step-by-step reasoning**, and edits to **user-provided** snippets. Point to existing project code when relevant.
 
-## AI / Cursor (syllabus-aligned)
+## AI assistance (syllabus-aligned)
 
 - **Allowed to assist:** debugging (errors, logic), clarifying concepts, and **refinement** of **user-drafted** text or code (grammar, clarity, formatting, style).
 - **Remind the user:** any refinement or debugging assistance should be documented in the submission under **“Sources Used”** (tool name + brief description). See `docs/COURSE_POLICY.md` for the template.

@@ -14,7 +14,7 @@ The course centers on a **data project**. Typical weights (confirm on the syllab
 | Interactive model deployment (graduate section)                                                                  | 10% (grad)       |
 | Final Jupyter notebook                                                                                           | 60%              |
 
-The **primary graded artifact** is your **final Jupyter notebook** (and milestone submissions as specified). Files in this repo such as README, `docs/`, and Cursor rules exist to collaborate and to record policy—they are **not** substitutes for the notebook unless an assignment explicitly asks for them.
+The **primary graded artifact** is your **final Jupyter notebook** (and milestone submissions as specified). Files in this repo such as README and `docs/` exist to collaborate and to record policy—they are **not** substitutes for the notebook unless an assignment explicitly asks for them. Optional tool-specific reminder files (for example `.cursor/rules/` when using Cursor) only affect tools that load them; they do not change course requirements.
 
 ## Style and quality bar
 
@@ -27,7 +27,9 @@ The **primary graded artifact** is your **final Jupyter notebook** (and mileston
 - Cite external sources, datasets, documentation, and ideas you did not originate.
 - Plagiarism or cheating can result in serious academic consequences per course policy.
 
-## AI tools (including Cursor and chat assistants)
+## AI tools (any workflow)
+
+The following applies whether you use **browser chat**, **IDE-embedded assistants** (e.g., Copilot), **Cursor**, or other tools—only the documentation and your judgment differ, not the course rules.
 
 The syllabus distinguishes **how** AI may be used:
 
@@ -61,11 +63,15 @@ You can paste this into your notebook or written submission and fill it in:
 
 If you did **not** use AI for refinement or debugging on a given deliverable, state that explicitly or leave a short note such as “No AI tools used for refinement or debugging on this submission.”
 
-## Suggested workflow for this repo
+## Suggested workflows for this repo
 
-- Use **chat or the agent for questions**, explanations, and debugging hints.
-- **Author notebook cells yourself**—type and structure the analysis you intend to submit; rework any suggestion until it is yours to explain.
-- Keep **Sources Used** accurate and specific for every milestone and the final notebook.
+These patterns are **policy-equivalent**; pick what fits your setup:
+
+- **Chat or assistant (any product):** use it for questions, explanations, and debugging hints—not for pasting full graded answers unchanged.
+- **Author notebook cells yourself:** type and structure the analysis you intend to submit; rework any suggestion until you can explain it.
+- **Keep Sources Used accurate** for every milestone and the final notebook, naming the specific tool when you use AI for refinement or debugging.
+
+See [AGENTS.md](../AGENTS.md) for a short mapping of the same policy to common tools (browser, IDE, Cursor).
 
 ## Late work (summary)
 
@@ -73,4 +79,4 @@ The syllabus describes late penalties and delayed grading; see the official syll
 
 ## Limits of “enforcement” in this repo
 
-Cursor rules and this file **remind** collaborators and tools of these expectations. They do **not** replace the syllabus, instructor judgment, or your responsibility to comply with course and university policies.
+This file and optional tool-specific files (e.g. `.cursor/rules/`) **remind** collaborators and assistants of these expectations. They do **not** replace the syllabus, instructor judgment, or your responsibility to comply with course and university policies.
