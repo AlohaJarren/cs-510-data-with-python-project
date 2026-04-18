@@ -1,0 +1,4 @@
+# Jupyter notebooks: strip outputs on commit (requires `nbstripout --install` per clone).
+# See docs/JUPYTER_TEAM_WORKFLOW.md
+*.ipynb filter=nbstripout
+*.ipynb diff=ipynb
