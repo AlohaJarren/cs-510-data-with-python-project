@@ -4,6 +4,8 @@ This repository holds the course **data project** work: notebooks, code, and sup
 
 **Course policy (read first):** [docs/COURSE_POLICY.md](docs/COURSE_POLICY.md) — PEP 8, honor code, **AI usage** (refinement and debugging are allowed with **Sources Used** notes; do not submit directly AI-generated graded work), and workflows. The official syllabus link lives in that doc.
 
+**AI disclosure (repo scaffolding):** [docs/AI_DISCLOSURE.md](docs/AI_DISCLOSURE.md) — how AI was used on non-notebook files in this repository (human-reviewed). Graded notebook work still uses **Sources Used** in the `.ipynb` per course policy.
+
 **Phase 1 (milestone):** [docs/PHASE1_DATA_ACQUISITION.md](docs/PHASE1_DATA_ACQUISITION.md) — assignment snapshot, rubric alignment, and pre-submit checklist (the Canvas deliverable is still the `.ipynb`).
 
 **Notebook workflow (team proposal):** [docs/JUPYTER_TEAM_WORKFLOW.md](docs/JUPYTER_TEAM_WORKFLOW.md) describes collaborating on Jupyter notebooks in Git (output stripping via Git filters, validation with pre-commit, and team habits). If a notebook is broken after a merge, use [docs/NOTEBOOK_RECOVERY.md](docs/NOTEBOOK_RECOVERY.md). **One-time setup per clone:** install [requirements-dev.txt](requirements-dev.txt), then run `./scripts/setup_notebook_hooks.sh`. After a messy merge, `pre-commit run --all-files` is a good sanity check. To drop this workflow later, revert the change and run `python3 -m nbstripout --uninstall --attributes .gitattributes` in each repository clone (details in the workflow doc).
