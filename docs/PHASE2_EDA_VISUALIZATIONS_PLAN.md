@@ -1,185 +1,134 @@
 # Phase 2: EDA & Visualizations — Implementation Plan
 
-**Companion to [PHASE2_EDA_VISUALIZATIONS.md](PHASE2_EDA_VISUALIZATIONS.md)** (the rubric / submission summary). This file is the **shared development plan** for the EDA section of the working notebook. It defines the analysis frame, where each column comes from, how it’s built, and how it powers the required visuals.
+**Companion:** [PHASE2_EDA_VISUALIZATIONS.md](PHASE2_EDA_VISUALIZATIONS.md) (rubric). **Policy:** [COURSE_POLICY.md](COURSE_POLICY.md).
 
-**Course policy:** [COURSE_POLICY.md](COURSE_POLICY.md) — graded artifacts, honor code, **Sources Used** when using AI for refinement or debugging, and PEP 8 for Python.
+---
+
+## Assumptions & changes (vs prior plan)
+
+| Change | Rationale |
+|--------|-----------|
+| **`analysis_df` is the only input** to statistical summaries and to every visual pipeline. | Single source of truth; avoids divergent filters or merges. |
+| **Two visuals are already implemented** in the working notebook (Emma: era / winner outplay bars; Simeon: MBTI-letter × metrics heatmap). | Treat them as fixed first-class outputs—do not add a second “generic” correlation heatmap or duplicate era/winner challenge logic elsewhere. |
+| **Initial statistics precede and justify visuals.** | All tables (mean / median / std / correlations) are computed from `analysis_df` only; visuals reference those numbers in Markdown. |
+| **Third visual (new)** | Fills the **social / outwit** gap (vote exposure), completing the story next to **era + outplay/idols** (Emma) and **personality × normalized performance** (Simeon). |
+| **“MBTI trends over time” line chart** from the old plan | **Not** implemented and **not** required if the third visual below is adopted—avoids two time-series personality charts and keeps scope tight. |
 
 ---
 
 ## Goal
 
-Produce a **single, narrow, contestant-grain DataFrame** (`analysis_df`) that supports:
+Support Phase 2 rubric (summaries + **3 diverse** embedded plots) using one contestant-grain frame and a repeatable pipeline per figure.
 
-- The Phase 2 statistical requirements (mean, median, std, correlations).
-- A **correlation heatmap**.
-- An **MBTI personality trends over time** chart.
-- One additional visual (TBD by team).
-
-Project questions this frame is built to answer:
-
-- What does it take to **Outwit, Outplay, Outlast**?
-- What decisions do **winners** make? What about **losers**?
-- How have those decisions changed as the game has evolved?
-- Are there **trends** or **qualities** that predict performance?
-- Have those trends/qualities changed over time?
+**Project questions the frame supports:** Outwit / Outplay / Outlast; winner vs non-winner; evolution over time.
 
 ---
 
-## Final analysis frame
+## Data: `analysis_df` (SSOT)
 
-- **Name:** `analysis_df`
-- **Grain:** one row per **contestant per season**
-- **Approximate size:** ~744 rows × ~13 columns
+- **Grain:** one row per contestant per season (~744 rows).
+- **Build:** unchanged from team notebook: castaways + season meta + aggregated challenge wins + `is_winner` + `season_year`. Final QA (`info`, rows per season, exactly one winner per season, `describe` on numeric gameplay columns) stays in one cell after construction.
 
-### Columns (origin and transformation)
+**Column groups (for stats and transforms):**
 
-| Column | Type | Source table | How it’s produced |
-|---|---|---|---|
-| `season` | int | `clean_castaways_df` | Passthrough; merge key. |
-| `castaway` | str | `clean_castaways_df` | Passthrough (short / show name). |
-| `full_name` | str | `clean_castaways_df` | Passthrough; used for labels and tie-breaks. |
-| `personality_type` | str | `clean_castaways_df` | Passthrough; `UNKNOWN` already imputed in cleaning. |
-| `mbti_ei`, `mbti_sn`, `mbti_tf`, `mbti_jp` *(optional)* | str | derived from `personality_type` | Letters 1–4 of the MBTI code; `NaN` where `personality_type == "UNKNOWN"`. |
-| `order` | int | `clean_castaways_df` | Passthrough — longevity rank within season. |
-| `day` | int | `clean_castaways_df` | Passthrough — days survived. |
-| `total_votes_received` | int | `clean_castaways_df` | Passthrough — social-risk proxy. |
-| `immunity_idols_obtained` | int | `clean_castaways_df` | Renamed from `immunity_idols_won`; mechanism-neutral count of idols a contestant came to hold (found, gifted, traded, etc.). |
-| `immunity_challenge_wins` | int | aggregated `challenges_cleaned_df` | Per-contestant count of `challenge_type == "immunity"` wins. |
-| `reward_challenge_wins` | int | aggregated `challenges_cleaned_df` | Per-contestant count of `challenge_type == "reward"` wins. |
-| `is_winner` | bool | derived from `summary_df.winner` | `True` where normalized `castaway == winner` for that season; **exactly one** `True` row per season. |
-| `season_year` | int | `summary_df.premiered` | `premiered.dt.year`. |
+- Identity: `season`, `castaway`, `full_name`
+- Personality: `personality_type`
+- Outlast: `order`, `day`
+- Outwit: `total_votes_received`, `immunity_idols_obtained`
+- Outplay: `immunity_challenge_wins`, `reward_challenge_wins`
+- Outcome / time: `is_winner`, `season_year`
 
-### Variable groups (mapped to project questions)
-
-- **Identity:** `season`, `castaway`, `full_name`
-- **Personality (MBTI):** `personality_type` (+ optional letter flags)
-- **Outlast:** `order`, `day`
-- **Outwit:** `total_votes_received`, `immunity_idols_obtained`
-- **Outplay:** `immunity_challenge_wins`, `reward_challenge_wins`
-- **Outcome label:** `is_winner`
-- **Evolution axis:** `season_year`
-
-### What is intentionally **not** in this frame
-
-- Viewer / rank / filming / location / tribe-setup columns from `summary_df`. They are either **constant per season** (clutter at contestant grain) or **partially missing**. They stay on `summary_df` and get merged in **only** when a specific season-level chart needs them.
-- `winner` from `summary_df` after `is_winner` is computed (drop to avoid an ambiguous helper column).
-- Tribe-level challenge wins (`winning_tribe`) — that data is **tribe grain**, not contestant grain, and would require tracking tribe membership over time. Out of scope for the minimal frame.
-- Row-level fields from `challenges_cleaned_df` (`episode`, `day`, `winning_tribe`, etc.) — collapsed away by aggregation.
+**Caveats** (surface in observations): `UNKNOWN` MBTI; idols ≠ immunity wins; ≤1 winner per season; `season_year` NaN if season missing from summary; personality is metadata not clinical assessment.
 
 ---
 
-## Build plan
+## Step 0 — Statistical foundation (from `analysis_df` only)
 
-### Step 1 — Aggregate challenges to contestant grain
+Run **before** any visualization code. Use these outputs to guide plot choices and Markdown (cite specific numbers next to each figure).
 
-From `challenges_cleaned_df`:
+1. **Global:** `mean`, `median`, `std` for  
+   `order`, `day`, `total_votes_received`, `immunity_idols_obtained`, `immunity_challenge_wins`, `reward_challenge_wins`  
+   (`analysis_df[list].agg(["mean", "median", "std"])` or equivalent).
+2. **By `is_winner`:** same metrics grouped by winner flag (table).
+3. **By era or `season_year`:** same metrics grouped by bins aligned to team era definitions **or** simple decade—pick one and stay consistent with Visual 1’s era labels if you add a stats row for “era.”
+4. **Correlations:** focused numeric matrix on the gameplay + longevity columns above (and optionally `is_winner` as 0/1). Present as a **small table** or heatmap **in the statistics section only** if desired—the **submitted** correlation *figure* for the notebook is Visual 2 below (MBTI-focused heatmap), not a duplicate full-variable heatmap.
 
-1. Filter out non-individual rows: drop where `winners == "No challenge winner"`.
-2. Group by `["season", "winners", "challenge_type"]` and count rows.
-3. Pivot `challenge_type` to columns named `immunity_challenge_wins` and `reward_challenge_wins`.
-4. Reset the index and rename `winners → castaway`.
-5. Result: a small lookup table with `season`, `castaway`, `immunity_challenge_wins`, `reward_challenge_wins`.
-
-### Step 2 — Build a slim season metadata table
-
-From `summary_df`:
-
-1. Select only `["season", "winner", "premiered"]`.
-2. Derive `season_year = premiered.dt.year`; drop `premiered`.
-3. Result: `season_meta` with `season`, `winner`, `season_year`.
-
-### Step 3 — Start the analysis frame from castaways
-
-From `clean_castaways_df` keep only:
-
-`season`, `castaway`, `full_name`, `personality_type`, `order`, `day`, `total_votes_received`, `immunity_idols_won`.
-
-Then:
-
-- Rename `immunity_idols_won → immunity_idols_obtained`.
-
-### Step 4 — Merge
-
-1. Left-merge `season_meta` on `season`.
-2. Left-merge the aggregated challenge table on `["season", "castaway"]`.
-3. `fillna(0)` on `immunity_challenge_wins` and `reward_challenge_wins`, cast to `int` (a true zero is the right value for “did not win any”).
-
-### Step 5 — Derive the winner label
-
-1. Normalize both sides: `str.strip().str.casefold()` on `castaway` and `winner`.
-2. `is_winner = normalized_castaway == normalized_winner`.
-3. **QA check:** assert each `season` has **exactly one** `True` row; print any season with 0 or >1 matches and patch only those.
-4. Drop `winner` after the boolean is set.
-
-### Step 6 — (Optional) MBTI letter flags
-
-Only if the dimension-level views are needed:
-
-- `mbti_ei = personality_type.str[0]` (and `[1]`, `[2]`, `[3]` for the other letters).
-- Set to `NaN` where `personality_type == "UNKNOWN"`.
-
-### Step 7 — Final QA (one cell, one screen)
-
-- `analysis_df.info()` — verify dtypes and non-nulls.
-- `analysis_df["season"].value_counts().sort_index()` — sanity check rows per season.
-- `analysis_df.groupby("season")["is_winner"].sum()` — should be `1` for every covered season.
-- `analysis_df[["order", "day", "total_votes_received", "immunity_idols_obtained", "immunity_challenge_wins", "reward_challenge_wins"]].describe()` — quick numeric sanity.
+**Rule:** No visual cell computes its own “global” summary statistics for rubric credit—those live in Step 0. Per-visual transforms may compute aggregates **only** for that plot (e.g., groupby for era means).
 
 ---
 
-## Statistical outputs (Phase 2 rubric)
+## Visual pipeline pattern (all figures)
 
-Compute and present clearly with pandas:
+For each visual:
 
-- **Per-MBTI-type summaries:** mean / median / std for `order`, `day`, `total_votes_received`, `immunity_idols_obtained`, `immunity_challenge_wins`, `reward_challenge_wins`.
-- **Winner vs non-winner summaries:** same metrics grouped by `is_winner`.
-- **Era / time summaries:** same metrics grouped by `season_year` bins (or `season`) for evolution observations.
-- **Correlation matrix:** focused on the numeric and boolean columns above (not a wall of raw output).
-
-Tie each table to a Markdown observation referencing the relevant figure.
+1. Start from `analysis_df.copy()`.
+2. Apply **documented** filters and derived columns → name the result `transformed_df` (or a descriptive name: `outplay_analysis_df`, `mbti_heatmap_df`, `votes_by_outcome_df`, etc.).
+3. Plot **only** from that transformed frame.
+4. In Markdown: state the **question**, tie to **Step 0** statistics, and note **caveats**.
 
 ---
 
-## Visualization plan (3 required)
+## Visual 1 — Implemented (Emma): Era × winner outplay profile
 
-### A) Correlation heatmap
+| Item | Definition |
+|------|------------|
+| **Question** | How do mean immunity wins, reward wins, and idols obtained differ between **winners and non-winners** across **eras** of the show? |
+| **Transform** (`outplay_analysis_df`) | From `analysis_df`: exclude agreed re-entry seasons; sort by `season`; `pd.cut` on `season_year` to era labels; `groupby(["era", "is_winner"])` → **mean** of `immunity_challenge_wins`, `reward_challenge_wins`, `immunity_idols_obtained`; set pre-idol era idol mean to 0 for clarity. |
+| **Output** | One figure: **three barplots** (shared era × hue=`is_winner`), titles/labels/legend per rubric. |
+| **Stats link** | Use Step 0 winner vs non-winner and era-group tables to justify expecting gaps; cite sample-size imbalance (few winners per era). |
 
-- Use the numeric + boolean columns of `analysis_df`.
-- Add clear axis labels and a colorbar; annotate cells if size allows.
-- In observations, call out at least one **expected** and one **surprising** relationship.
-
-### B) MBTI trends over time
-
-- X-axis: `season_year` (or `season`).
-- Y-axis: share of castaways (or share of finalists / winners) by `personality_type` or by an MBTI letter dimension.
-- Use line(s) with a legend; consider rolling average to reduce noise.
-
-### C) Third visual (TBD)
-
-Strong candidates that fit this frame without extra joins:
-
-- Box / violin plot of `order` by `personality_type` (or by E/I, S/N, etc.).
-- Stacked bar of personality mix for winners vs non-winners by era.
-- Scatter of `age` vs `order`, colored by `is_winner` *(requires keeping `age` from castaways — add to Step 3 if used)*.
-
-Pick whichever best supports the team’s narrative; document the choice in observations.
+**Do not duplicate:** a second “mean challenges by era” chart with different season exclusions—keep one authoritative version here.
 
 ---
 
-## Caveats to surface in observations
+## Visual 2 — Implemented (Simeon): MBTI letters × performance correlation heatmap
 
-- `personality_type == "UNKNOWN"` was imputed during cleaning; treat those rows carefully in MBTI-only summaries.
-- `immunity_idols_obtained` is mechanism-neutral and does **not** equal `immunity_challenge_wins`. The two columns can both be high, both be zero, or move independently.
-- Winners are rare (≤ 1 per season), so per-MBTI-type win rates have small sample sizes.
-- Any season missing from `summary_df` will end up with `NaN` `season_year` (and won’t contribute to time-trend visuals); document the covered range explicitly.
-- Personality labels in this dataset are **metadata**, not clinical MBTI assessments.
+| Item | Definition |
+|------|------------|
+| **Question** | Do **MBTI letter dimensions** (E/I, N/S, T/F, J/P as binary flags) correlate with **winner status** and **time-adjusted** gameplay signals? |
+| **Transform** (`mbti_heatmap_df`) | From `analysis_df`: drop `personality_type == "UNKNOWN"`; add `is_extrovert`, `is_intuitive`, `is_thinking`, `is_judging` (0/1); `winner_flag`; `survival_pct` (order / season max order); `votes_per_day`, `idols_per_day`, `immunity_wins_per_day`, `reward_wins_per_day` (numerators with `day.clip(lower=1)`); correlation block between letter flags and metrics; subset rows/columns for heatmap; optional friendly rename for display. |
+| **Output** | **One heatmap** (annotated, labeled colorbar). |
+| **Stats link** | Quote Step 0 correlation table for raw numeric relationships; use this figure for **personality-sliced** structure and normalized rates. |
+
+**Do not duplicate:** a separate full-dataset correlation heatmap of the same MBTI×metric cells, or a second notebook section that re-derives the same matrix with different filters.
+
+---
+
+## Visual 3 — Proposed (e.g., Jarren / remaining slot): Vote exposure by outcome
+
+| Item | Definition |
+|------|------------|
+| **Question** | Do **winners** accumulate **more or less vote exposure** than non-winners after accounting for how long they played? (Outwit / social heat—orthogonal to Emma’s challenge/idol means and Simeon’s personality correlation grid.) |
+| **Transform** (`votes_by_outcome_df`) | From `analysis_df`: `votes_per_day = total_votes_received / day.clip(lower=1)` (same definition as Visual 2 for consistency); optional winsorize or cap extreme `votes_per_day` for readability **or** use raw `total_votes_received` with `day` as hue/size—pick one approach and document it. Keep all MBTI types (no `UNKNOWN` drop required here). |
+| **Output** | **One** of: **violin or box plot** of `votes_per_day` by `is_winner` (x = outcome, y = rate); or **strip/swarm** with jitter if counts allow. Title/axis/legend per rubric. |
+| **Stats link** | Compare medians/means from Step 0’s `total_votes_received` (and optionally `day`) by `is_winner`; state whether distributions overlap or separate. |
+| **Why it complements** | Emma emphasizes **physical/idol** outplay over time; Simeon emphasizes **personality × normalized rates**; this visual emphasizes **social targeting** vs **outcome** without repeating era bins or MBTI correlation layout. |
+
+**Alternatives** (only if the team prefers—still one third figure): hexbin `day` × `total_votes_received` colored or faceted by `is_winner`; or KDE of `order` by `is_winner`. Avoid a third bar chart of era means for metrics already in Visual 1.
+
+---
+
+## Implementation order (minimal ambiguity)
+
+1. Build / load `analysis_df` → QA cell.
+2. **Step 0** statistics cell(s) — all from `analysis_df`.
+3. Visual 1 code → Markdown observations (reference Step 0).
+4. Visual 2 code → Markdown observations (reference Step 0).
+5. Visual 3: implement `votes_by_outcome_df` pipeline → plot → Markdown.
+
+---
+
+## Contribution checklist
+
+- [ ] No duplicate logic between Visual 1 and any other era/winner bar chart.
+- [ ] No second MBTI×metric correlation figure competing with Visual 2.
+- [ ] Third plot is a **different chart type** from the other two (bars + heatmap + box/violin/scatter satisfies “diverse”).
+- [ ] Restart kernel, run all, update **Sources Used** per policy if AI assisted.
 
 ---
 
 ## How to contribute
 
-1. Read this plan and [PHASE2_EDA_VISUALIZATIONS.md](PHASE2_EDA_VISUALIZATIONS.md) (rubric).
-2. Build / extend `analysis_df` per the steps above; do not add columns outside the table without team agreement.
-3. Run the **Final QA** cell after any change to the frame.
-4. Add a Markdown observation alongside every new statistic or visual.
-5. Update **Sources Used** in the notebook per [COURSE_POLICY.md](COURSE_POLICY.md) when AI assists with refinement or debugging.
+1. Read this plan and the rubric doc.
+2. Extend `analysis_df` only via agreed team steps; rerun QA after frame changes.
+3. Each new statistic or figure gets Markdown that cites Step 0 where relevant.
