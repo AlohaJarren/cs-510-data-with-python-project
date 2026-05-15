@@ -100,8 +100,8 @@ Use this list against the **notebook** you will upload.
 
 Fill in as your project takes shape. Keep long narratives in the **notebook**, not here.
 
-| Note | Details |
-|------|---------|
-| Plot conventions | *(color palette, figure size defaults, which columns are primary EDA targets)* |
-| Correlation scope | *(all numeric columns vs. a focused subset—and why)* |
-| Reproducibility | *(Python version, `requirements`/`environment`, path assumptions)* |
+| Note              | Details                                                                        |
+| ----------------- | ------------------------------------------------------------------------------ |
+| Plot conventions  | *(color palette, figure size defaults, which columns are primary EDA targets)* |
+| Correlation scope | *(all numeric columns vs. a focused subset—and why)*                           |
+| Reproducibility   | *(Python version, `requirements`/`environment`, path assumptions)*             |
