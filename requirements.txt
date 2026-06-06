@@ -8,3 +8,6 @@ seaborn>=0.13.0
 
 # Machine learning
 scikit-learn>=1.4.0
+joblib>=1.3.0
+
+# Streamlit deployment (grad): full pinned deps in deployment/requirements.txt
