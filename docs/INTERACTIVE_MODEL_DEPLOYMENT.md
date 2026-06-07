@@ -201,9 +201,44 @@ Use this list against the **ZIP** you will upload.
 
 ---
 
+## Team maintenance (repo only)
+
+**`deployment/README.md`** is grader-facing and ships inside the Canvas ZIP. Keep repo-only workflow notes here—not in that file.
+
+### Refresh the model
+
+After re-running the bundle cells in `survivoR.ipynb`:
+
+1. Confirm `deployment/model.joblib` was written.
+2. Restart Streamlit (or clear cache) so the app loads the new artifact.
+
+### Refresh requirements
+
+Only after changing installed packages, with `deployment/venv` active:
+
+```bash
+cd deployment
+pip freeze > requirements.txt
+```
+
+Keep `scikit-learn` aligned with the version used when the model was saved (currently **1.8.0**).
+
+### Create the Canvas ZIP
+
+From the repo root, zip the `deployment/` folder without the virtual environment:
+
+```bash
+zip -r survivoR_deployment.zip deployment \
+  -x "deployment/venv/*" -x "deployment/env/*" -x "deployment/__pycache__/*" -x "*.DS_Store"
+```
+
+The archive should contain one top-level folder (`deployment/`) with at least `app.py`, `model.joblib`, and `requirements.txt`.
+
+---
+
 ## Appendix (optional team notes)
 
-Fill in as your deployment takes shape. Keep user-facing copy in **`app.py`**, not here.
+Fill in as your deployment takes shape. Keep user-facing copy in **`app.py`**, not in **`deployment/README.md`**.
 
 | Note | Details |
 | ---- | ------- |
