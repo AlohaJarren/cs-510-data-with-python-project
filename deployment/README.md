@@ -24,7 +24,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Open the URL shown in the terminal (usually http://localhost:8501). Adjust sliders, choose an MBTI type, and click **Predict**.
+Open the URL shown in the terminal (usually http://localhost:8501). Choose number of players, adjust their sliders, choose an MBTI type, and click **Predict**.
 
 ## Refresh the model
 
