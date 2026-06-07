@@ -12,6 +12,8 @@ This repository holds the course **data project** work: notebooks, code, and sup
 
 **Phase 3 (milestone):** [docs/PHASE3_QUESTION_ANSWERING_CONCLUSION.md](docs/PHASE3_QUESTION_ANSWERING_CONCLUSION.md) — analytical questions from EDA, code-backed answers, conclusion and reflection, and pre-submit checklist (submit the updated `.ipynb` on Canvas).
 
+**Interactive model deployment (grad):** [docs/INTERACTIVE_MODEL_DEPLOYMENT.md](docs/INTERACTIVE_MODEL_DEPLOYMENT.md) — Streamlit app, model serialization, packaging, rubric alignment, and pre-submit checklist (submit a ZIP of `deployment/` on Canvas). Grader run instructions live in [deployment/README.md](deployment/README.md).
+
 **Notebook workflow (team proposal):** [docs/JUPYTER_TEAM_WORKFLOW.md](docs/JUPYTER_TEAM_WORKFLOW.md) describes collaborating on Jupyter notebooks in Git (output stripping via Git filters, validation with pre-commit, and team habits). If a notebook is broken after a merge, use [docs/NOTEBOOK_RECOVERY.md](docs/NOTEBOOK_RECOVERY.md). **One-time setup per clone:** install [requirements-dev.txt](requirements-dev.txt), then run `./scripts/setup_notebook_hooks.sh`. After a messy merge, `pre-commit run --all-files` is a good sanity check. To drop this workflow later, revert the change and run `python3 -m nbstripout --uninstall --attributes .gitattributes` in each repository clone (details in the workflow doc).
 
 **Using assistants (any editor or tool):** [AGENTS.md](AGENTS.md) explains how the same rules apply across browser chat, IDE assistants, and Cursor. **Cursor users** may also use [.cursor/rules/cs510-course-policy.mdc](.cursor/rules/cs510-course-policy.mdc) (optional reminders for the agent; not required for everyone).
