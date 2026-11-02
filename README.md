@@ -1,19 +1,5 @@
-# CS 410/510 — Data With Python (group project)
+# Survivor Data Analysis and Winner Profiles - CS 510
 
-This repository holds the course **data project** work: notebooks, code, and supporting files for CS 410/510 at Portland State University.
+This was a group project for Data with Python at Portland State University. We combined five Survivor datasets and used pandas, Matplotlib, and Seaborn to explore how challenge wins, votes, idols, and time spent in the game relate to winning. Our [notebook](survivoR.ipynb) covers data cleaning, visualizations, and questions about how those patterns changed across seasons.
 
-**Course policy (read first):** [docs/COURSE_POLICY.md](docs/COURSE_POLICY.md) — PEP 8, honor code, **AI usage** (refinement and debugging are allowed with **Sources Used** notes; do not submit directly AI-generated graded work), and workflows. The official syllabus link lives in that doc.
-
-**AI disclosure (repo scaffolding):** [docs/AI_DISCLOSURE.md](docs/AI_DISCLOSURE.md) — how AI was used on non-notebook files in this repository (human-reviewed). Graded notebook work still uses **Sources Used** in the `.ipynb` per course policy.
-
-**Phase 1 (milestone):** [docs/PHASE1_DATA_ACQUISITION.md](docs/PHASE1_DATA_ACQUISITION.md) — assignment snapshot, rubric alignment, and pre-submit checklist (the Canvas deliverable is still the `.ipynb`).
-
-**Phase 2 (milestone):** [docs/PHASE2_EDA_VISUALIZATIONS.md](docs/PHASE2_EDA_VISUALIZATIONS.md) — EDA, visualizations, summary statistics, observations, and pre-submit checklist (submit the updated `.ipynb` on Canvas).
-
-**Phase 3 (milestone):** [docs/PHASE3_QUESTION_ANSWERING_CONCLUSION.md](docs/PHASE3_QUESTION_ANSWERING_CONCLUSION.md) — analytical questions from EDA, code-backed answers, conclusion and reflection, and pre-submit checklist (submit the updated `.ipynb` on Canvas).
-
-**Interactive model deployment (grad):** [docs/INTERACTIVE_MODEL_DEPLOYMENT.md](docs/INTERACTIVE_MODEL_DEPLOYMENT.md) — Streamlit app, model serialization, packaging, rubric alignment, and pre-submit checklist (submit a ZIP of `deployment/` on Canvas). Grader run instructions live in [deployment/README.md](deployment/README.md).
-
-**Notebook workflow (team proposal):** [docs/JUPYTER_TEAM_WORKFLOW.md](docs/JUPYTER_TEAM_WORKFLOW.md) describes collaborating on Jupyter notebooks in Git (output stripping via Git filters, validation with pre-commit, and team habits). If a notebook is broken after a merge, use [docs/NOTEBOOK_RECOVERY.md](docs/NOTEBOOK_RECOVERY.md). **One-time setup per clone:** install [requirements-dev.txt](requirements-dev.txt), then run `./scripts/setup_notebook_hooks.sh`. After a messy merge, `pre-commit run --all-files` is a good sanity check. To drop this workflow later, revert the change and run `python3 -m nbstripout --uninstall --attributes .gitattributes` in each repository clone (details in the workflow doc).
-
-**Using assistants (any editor or tool):** [AGENTS.md](AGENTS.md) explains how the same rules apply across browser chat, IDE assistants, and Cursor. **Cursor users** may also use [.cursor/rules/cs510-course-policy.mdc](.cursor/rules/cs510-course-policy.mdc) (optional reminders for the agent; not required for everyone).
+We also trained a Random Forest classifier and built a [Streamlit app](deployment/) that ranks a custom set of contestants by how much their gameplay profiles resemble past winners. Since the model uses end-of-season statistics, it is an exploratory comparison tool, not a way to predict who will win before a season begins. The project also includes our [course policy](docs/COURSE_POLICY.md) and [AI assistance disclosure](docs/AI_DISCLOSURE.md).
